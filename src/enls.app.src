@@ -1,0 +1,9 @@
+{application
+,enls
+,[{description, "Native Language Support (NLS)"}
+ ,{vsn, "0.0.0"}
+ ,{applications, [kernel, stdlib]}
+ ,{modules, []}
+ ,{maintainers, ["pouriya.jahanbakhsh@gmail.com"]}
+ ,{licenses, ["BSD 3-Clause"]}
+ ,{links, []}]}.
