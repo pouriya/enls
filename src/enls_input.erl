@@ -1,6 +1,6 @@
 -module(enls_input).
 
--export([load/2, read_erlang_file/2, check_callback/1, check_data/1]).
+-export([load/2, read_erlang_file/2, check_callback/1, check_data/1, check_encoding/1]).
 
 load(InitArg, Opts) ->
     {Mod, Func} = enls:value(callback
@@ -76,4 +76,14 @@ check_callback({Mod, Func}) when erlang:is_atom(Mod) andalso
                                  erlang:is_atom(Func)     ->
     true;
 check_callback(_) ->
+    false.
+
+
+check_encoding(latin1) ->
+    true;
+check_encoding(unicode) ->
+    true;
+check_encoding(utf8) ->
+    true;
+check_encoding(_) ->
     false.
