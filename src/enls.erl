@@ -3,8 +3,8 @@
 -export([value/3]).
 
 
-value(Key, Def, Filter) ->
-    case application:get_env(Key, elns, Def) of
+value(Key, Opts, Def, Filter) ->
+    case maps:get(Key, Opts, Def) of
         Def ->
             Def;
         Val ->
