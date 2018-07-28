@@ -13,9 +13,8 @@ load(InputInitArg, Opts) ->
     InputOpts = maps:get(input_options, Opts, #{}),
     case enls_input:load(InputInitArg, InputOpts) of
         {ok, Data} ->
-            {ok, Data};
-%            CompilerOpts = maps:get(compiler_options, Opts, #{}),
-%            enls_compiler:compile(Data, CompilerOpts); % ok | {error, _}
+            CompilerOpts = maps:get(compiler_options, Opts, #{}),
+            enls_compiler:load(Data, CompilerOpts); % ok | {error, _}
         Err -> % {error, _}
             Err
     end.
