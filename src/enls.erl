@@ -1,6 +1,24 @@
 -module(enls).
 
--export([value/3]).
+-export([load/1
+        ,load/2
+        ,value/4]).
+
+
+load(InputInitArg) ->
+    load(InputInitArg, #{}).
+
+
+load(InputInitArg, Opts) ->
+    InputOpts = maps:get(input_options, Opts, #{}),
+    case enls_input:load(InputInitArg, InputOpts) of
+        {ok, Data} ->
+            {ok, Data};
+%            CompilerOpts = maps:get(compiler_options, Opts, #{}),
+%            enls_compiler:compile(Data, CompilerOpts); % ok | {error, _}
+        Err -> % {error, _}
+            Err
+    end.
 
 
 value(Key, Opts, Def, Filter) ->
