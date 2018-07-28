@@ -14,7 +14,8 @@ load(InitArg, Opts) ->
             Err;
         Other ->
             {error, {return, [{returned_value, Other}
-                             ,{callback, {Mod, Func}}]}}
+                             ,{callback, {Mod, Func}}
+                             ,{arguments, [InitArg, Opts]}]}}
     end.
 
 
