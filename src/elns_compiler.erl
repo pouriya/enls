@@ -1,2 +1,0 @@
--module(elns_compiler).
--export([]).
