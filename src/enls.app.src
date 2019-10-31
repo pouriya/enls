@@ -1,9 +1,9 @@
 {application
 ,enls
-,[{description, "Native Language Support (NLS)"}
+,[{description, "An OTP application"}
  ,{vsn, "0.0.0"}
  ,{applications, [kernel, stdlib]}
- ,{modules, []}
+ ,{mod, {enls_app, undefined}}
  ,{maintainers, ["pouriya.jahanbakhsh@gmail.com"]}
- ,{licenses, ["BSD 3-Clause"]}
- ,{links, []}]}.
+ ,{licenses, ["UNLICENSED"]}
+ ,{links, [{"", ""}]}]}.

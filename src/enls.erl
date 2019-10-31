@@ -1,61 +1,19 @@
 -module(enls).
 
--export([load/1
-        ,load/2
-        ,value/4]).
+-export([
+    load/0,
+    load/1
+]).
 
 
-load(InputInitArg) ->
-    load(InputInitArg, #{}).
+load() ->
+    load(#{}).
 
 
-load(InputInitArg, Opts) ->
-    InputOpts = maps:get(input_options, Opts, #{}),
-    case enls_input:load(InputInitArg, InputOpts) of
+load(Opts) ->
+    case enls_input:load(Opts) of
         {ok, Data} ->
-            CompilerOpts = maps:get(compiler_options, Opts, #{}),
-            enls_compiler:load(Data, CompilerOpts); % ok | {error, _}
-        Err -> % {error, _}
+            enls_compiler:load(Data, Opts);
+        Err ->
             Err
-    end.
-
-
-value(Key, Opts, Def, Filter) ->
-    case maps:get(Key, Opts, Def) of
-        Def ->
-            Def;
-        Val ->
-            case Filter of
-                {Mod, Func} ->
-                    try Mod:Func(Key, Def, Val) of
-                        ok ->
-                            Val;
-                        true ->
-                            Val;
-                        {ok, NewVal} ->
-                            NewVal;
-                        {error, Rsn} ->
-                            erlang:error({value, [{reason, Rsn}
-                                                 ,{value, Val}
-                                                 ,{key, Key}]});
-                        false ->
-                            erlang:error({value, [{value, Val}, {key, Key}]});
-                        Other ->
-                            erlang:error({return, [{returned_value, Other}
-                                                  ,{value, Val}
-                                                  ,{filter, Filter}
-                                                  ,{key, key}]})
-                    catch
-                        Type:Rsn ->
-                            erlang:error({exception
-                                         ,[{reason, Rsn}
-                                          ,{stacktrace, erlang:get_stacktrace()}
-                                          ,{value, Val}
-                                          ,{filter, Filter}
-                                          ,{key, Key}
-                                          ,{type, Type}]})
-                    end;
-                _ -> % undefined
-                    Val
-            end
     end.

@@ -5,46 +5,31 @@
 -define(SPECIAL_FUNCTION, '$enls_module').
 
 load(Data, Opts) ->
-    Mod = enls:value(module, Opts, enls_dynamic, {?MODULE, check_module}),
-    case is_nls_module(Mod) of
-        false ->
-            {error, {not_allowed, [{module, Mod}]}};
-        _ -> % false
-            load(Data, Opts, Mod)
-    end.
+    load(Data, Opts, maps:get(module, Opts, enls_dynamic)).
 
 
 
-load(Data, Opts, Mod) ->
+load(LangsData, Opts, Mod) ->
+    NotFoundReturn = maps:get(not_found_return, Opts, "TRANSLATION NOT FOUND"),
     ModAttr = attribute(module, [atom(Mod)]),
     ExportAllAttr = attribute(compile, [atom(export_all)]),
-    SpecialFunc = function(?SPECIAL_FUNCTION, [clause([], [], [atom(ok)])]),
-    TranslateFunc = make_translate_function(Data),
-    {ok, _, Binary} = compile:forms([ModAttr, ExportAllAttr, SpecialFunc, TranslateFunc], [return_errors]),
+    NoWarnExportAllAttr = attribute(compile, [atom(nowarn_export_all)]),
+    TranslateFuncs = [make_translate_function(Data, Lang, string(NotFoundReturn)) || {Lang, Data} <- maps:to_list(LangsData)],
+    {ok, _, Binary} = compile:forms([ModAttr, ExportAllAttr, NoWarnExportAllAttr | TranslateFuncs], [return_errors]),
     {module, _} = code:load_binary(Mod, erlang:atom_to_list(Mod), Binary),
     ok.
 
 
+make_translate_function(Data, Lang, NotFoundReturn) ->
+    LastClause = clause([underscore()], [], [NotFoundReturn]),
+    do_make_translate_function(Data, Lang, [LastClause]).
 
-is_nls_module(Mod) ->
-    try Mod:?SPECIAL_FUNCTION() of
-        _ ->
-            true
-    catch
-        _:_ ->
-            false
-    end.
-
-make_translate_function(Data) ->
-    LastClause = clause([underscore()], [], [atom(not_found)]),
-    make_translate_function(Data, [LastClause]).
-
-make_translate_function([{Id, Text}|Data], Clauses) ->
-    Pattern = [integer(Id)],
-    Body = [string(Text)],
-    make_translate_function(Data, [clause(Pattern, [], Body)|Clauses]);
-make_translate_function([], Clauses) ->
-    function(translate, Clauses).
+do_make_translate_function([{Text1, Text2}|Data], Lang, Clauses) ->
+    Pattern = [string(Text1)],
+    Body = [string(Text2)],
+    do_make_translate_function(Data, Lang, [clause(Pattern, [], Body)|Clauses]);
+do_make_translate_function([], Lang, Clauses) ->
+    function(Lang, Clauses).
 
 function(Name, Clauses) when erlang:is_atom(Name) andalso erlang:is_list(Clauses) ->
     abstract(function, [atom(Name), Clauses]);
